@@ -1,11 +1,10 @@
-﻿using System;
+using System;
 
 class Program
 {
     static void Main(string[] args)
     {
-        Console.OutputEncoding = System.Text.Encoding.UTF8;
-        Console.Title = "Music Catalog Database";
+        Console.ForegroundColor = ConsoleColor.Cyan;
 
         string dbPath = "music_catalog.bin";
         MusicDatabase db = new MusicDatabase(dbPath);
@@ -19,7 +18,7 @@ class Program
         }
 
         bool exit = false;
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        
         while (!exit)
         {
             Console.Clear();
@@ -128,7 +127,7 @@ class Program
         var newItem = new MusicItem(0, title, artist, releaseDate, duration, price, isExplicit, rating, genre, listenCount);
         db.AddItem(newItem);
 
-        Console.WriteLine($"\n✓ Альбом \"{title}\" успешно добавлен с ID {newItem.Id}");
+        Console.WriteLine($"\nАльбом \"{title}\" успешно добавлен с ID {newItem.Id}");
     }
 
     static void DeleteItem(MusicDatabase db)
@@ -147,7 +146,7 @@ class Program
                 {
                     if (db.DeleteById(id))
                     {
-                        Console.WriteLine($"✓ Альбом с ID {id} удалён");
+                        Console.WriteLine($"Альбом с ID {id} удалён");
                     }
                 }
                 else
