@@ -1,29 +1,29 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 public class MusicDatabase
 {
-    private string filePath;
-    private List<MusicItem> items;
+    private string _filePath;
+    private List<MusicItem> _items;
 
     public MusicDatabase(string path)
     {
-        filePath = path;
-        items = new List<MusicItem>();
+        _filePath = path;
+        _items = new List<MusicItem>();
     }
 
     public void LoadFromFile()
     {
-        if (File.Exists(filePath))
+        if (File.Exists(_filePath))
         {
             try
             {
-                using (FileStream fs = new FileStream(filePath, FileMode.Open))
+                using (FileStream fs = new FileStream(_filePath, FileMode.Open))
                 using (BinaryReader reader = new BinaryReader(fs))
                 {
-                    items.Clear();
+                    _items.Clear();
                     int count = reader.ReadInt32(); // Чтение количества записей
 
                     for (int i = 0; i < count; i++)
@@ -41,33 +41,33 @@ public class MusicDatabase
                         item.Genre = reader.ReadString();
                         item.ListenCount = reader.ReadInt64();
 
-                        items.Add(item);
+                        _items.Add(item);
                     }
                 }
-                Console.WriteLine($"База данных загружена из бинарного файла. Записей: {items.Count}");
+                Console.WriteLine($"База данных загружена из бинарного файла. Записей: {_items.Count}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка загрузки: {ex.Message}");
-                items = new List<MusicItem>();
+                _items = new List<MusicItem>();
             }
         }
         else
         {
             Console.WriteLine("Файл базы данных не найден. Создана новая пустая база.");
-            items = new List<MusicItem>();
+            _items = new List<MusicItem>();
             SaveToFile();
         }
     }
 
     public void SaveToFile()
     {
-        using (FileStream fs = new FileStream(filePath, FileMode.Create))
+        using (FileStream fs = new FileStream(_filePath, FileMode.Create))
         using (BinaryWriter writer = new BinaryWriter(fs))
         {
-            writer.Write(items.Count);
+            writer.Write(_items.Count);
 
-            foreach (var item in items)
+            foreach (var item in _items)
             {
                 writer.Write(item.Id);
                 writer.Write(item.Title ?? "");
@@ -81,12 +81,12 @@ public class MusicDatabase
                 writer.Write(item.ListenCount);
             }
         }
-        Console.WriteLine($"Данные сохранены в бинарный файл: {filePath}");
+        Console.WriteLine($"Данные сохранены в бинарный файл: {_filePath}");
     }
 
     public void ViewAll()
     {
-        if (items.Count == 0)
+        if (_items.Count == 0)
         {
             Console.WriteLine("\nБаза данных пуста.");
             return;
@@ -96,22 +96,22 @@ public class MusicDatabase
         Console.WriteLine(MusicItem.GetHeader());
         Console.WriteLine(MusicItem.GetSeparator());
 
-        foreach (var item in items)
+        foreach (var item in _items)
         {
             Console.WriteLine(item.ToString());
         }
 
         Console.WriteLine(MusicItem.GetSeparator());
-        Console.WriteLine($"Всего записей: {items.Count}");
+        Console.WriteLine($"Всего записей: {_items.Count}");
     }
 
     // Удаление записи
     public bool DeleteById(int id)
     {
-        var item = items.FirstOrDefault(x => x.Id == id);
+        var item = _items.FirstOrDefault(x => x.Id == id);
         if (item != null)
         {
-            items.Remove(item);
+            _items.Remove(item);
             SaveToFile();
             Console.WriteLine($"Элемент с ID {id} удалён");
             return true;
@@ -125,9 +125,9 @@ public class MusicDatabase
     {
         if (item.Id == 0)
         {
-            item.Id = items.Count > 0 ? items.Max(x => x.Id) + 1 : 1;
+            item.Id = _items.Count > 0 ? _items.Max(x => x.Id) + 1 : 1;
         }
-        items.Add(item);
+        _items.Add(item);
         SaveToFile();
         Console.WriteLine($"Добавлен новый альбом: {item.Title}");
     }
@@ -135,35 +135,35 @@ public class MusicDatabase
     // Вывод альбомов дороже заданной цены
     public List<MusicItem> GetAlbumsExpensive(decimal minPrice)
     {
-        return items.Where(x => x.Price > minPrice).OrderByDescending(x => x.Price).ToList();
+        return _items.Where(x => x.Price > minPrice).OrderByDescending(x => x.Price).ToList();
     }
 
     // Вывод альбомов с рейтингом выше заданного
     public List<MusicItem> GetAlbumsHighRaiting(double minRating)
     {
-        return items.Where(x => x.Rating > minRating).OrderByDescending(x => x.Rating).ToList();
+        return _items.Where(x => x.Rating > minRating).OrderByDescending(x => x.Rating).ToList();
     }
 
     // Общее количество прослушиваний 
     public long GetTotalListenCount()
     {
-        return items.Sum(x => x.ListenCount);
+        return _items.Sum(x => x.ListenCount);
     }
 
     // Средняя цена альбома
     public decimal GetAveragePrice()
     {
-        return items.Count > 0 ? items.Average(x => x.Price) : 0;
+        return _items.Count > 0 ? _items.Average(x => x.Price) : 0;
     }
 
     // Вспомогательные методы
     public List<MusicItem> GetAllItems()
     {
-        return items.ToList();
+        return _items.ToList();
     }
 
     public bool IdExists(int id)
     {
-        return items.Any(x => x.Id == id);
+        return _items.Any(x => x.Id == id);
     }
 }
